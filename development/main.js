@@ -1,19 +1,6 @@
 const
-    express = require('express'),
-    cors = require('cors'),
-    mongoose = require("mongoose"),
-    IndexRouter = require('./routes/index');
-    LoginRouter = require('./routes/login');
-
-/*
- * Assign Application level middleware,
- */
-const app = express();
-app.use(cors());
-app.use(express.urlencoded({extended: true}));
-app.use(express.json());
-app.use('/', IndexRouter);
-app.use('/', LoginRouter);
+    app = require('./app'),
+    mongoose = require("mongoose");
 
 /* Connection parameters */
 const port = 3001;

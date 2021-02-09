@@ -1,63 +1,74 @@
 const
-    router = require('express').Router(),
-    CaseStudy = require('../models/case-study'),
-    pdf = require("html-pdf"),
-    pdfTemplate = require("../documents/case-study-pdf");
+    CaseStudy = require('../models/case-study');
 
-router.post('/view-by-id1',getCaseStudy);
-router.post('/searchtags', getManyCaseStudies);
-router.post('/create', createCaseStudy);
-router.post('/update',updateCaseStudy);
-router.get('/view-all', getAllCaseStudies);
-router.post('/view-your-cs-draft', [modifyRequestForDrafts, getUserCaseStudies]);
-router.post('/view-your-cs-published', [modifyRequestForPublished, getUserCaseStudies]);
-router.get('/fetch-pdf', getPDF);
-router.post('/create-pdf', createPDF);
-
-module.exports = router;
+module.exports = {
+    newCaseStudyObject,
+    getCaseStudy,
+    getManyCaseStudies,
+    getAllCaseStudies,
+    getIndustries,
+    createCaseStudy,
+    updateCaseStudy,
+}
 
 function newCaseStudyObject(req) {
     return {
+        //owner {type: String, required: true},
         project_name: req.body.project_name,
         project_industry: req.body.project_industry,
         project_start_date: req.body.project_start_date,
         project_end_date: req.body.project_end_date,
-        city: req.body.city,
-        country: req.body.country,
+        //project_city: {type: String},
+        //project_country: {type: String},
         problem_space: req.body.problem_space,
         idea: req.body.idea,
         approach: req.body.approach,
         impact: req.body.impact,
-        tags: req.body.tags,
         status: req.body.status,
+        tags: req.body.tags,
+        //client: {type: mongoose.Schema.Types.ObjectID, ref: 'Client'}
+
         employee_id: req.body.username,
+        city: req.body.city,
+        country: req.body.country,
         client_name: req.body.client_name,
         client_code_name: req.body.client_code_name,
-        client_address: req.body.client_address,
         client_phone: req.body.client_phone,
         client_email: req.body.client_email,
     };
 }
 
-/* Request Handlers */
-
 async function getCaseStudy(req, res) {
     CaseStudy
+        //.findOne({$or: [{_id: req.params._id}, {project_name: req.query.project_name}]})
         .find({_id: req.body.params._id})
         .exec()
         .then(doc => {
+            /*if (doc) {
+                res.status(200).send(doc);
+            } else {
+                res.sendStatus(404);
+            }*/
             res.send(doc);
         })
+        //.catch(next);
 }
 
 async function getManyCaseStudies(req, res) {
     const search = `${req.body.project_industry} ${req.body.client_name} ${req.body['tag_data']}`
     CaseStudy
+        //.find({$text: {$search: req.query['q']}})
         .find({$text: {$search: search}})
         .exec()
         .then(docs => {
+            /*if (docs.length > 0) {
+                res.status(200).send(docs);
+            } else {
+                res.sendStatus(404);
+            }*/
             res.send(docs);
         })
+    //.catch(next);
 }
 
 async function getAllCaseStudies(req, res) {
@@ -66,8 +77,14 @@ async function getAllCaseStudies(req, res) {
         .select('project_name client_name')
         .exec()
         .then(docs => {
+            /*if(docs.length > 0) {
+                res.status(200).send(docs);
+            } else {
+                res.sendStatus(404);
+            }*/
             res.send(docs);
         })
+        //.catch(next);
 }
 
 async function createCaseStudy(req, res) {
@@ -76,6 +93,7 @@ async function createCaseStudy(req, res) {
         .then(doc => {
             res.status(201).location(`/${doc._id}`).send();
         })
+        //.catch(next);
         .catch(err => {res.send('Failed to create case study')});
 }
 
@@ -86,41 +104,22 @@ async function updateCaseStudy(req, res) {
         .then(() => {
             res.sendStatus(201);
         })
+        //.catch(next);
         .catch(err => {res.send('Failed to Update case study')});
 }
 
-async function modifyRequestForDrafts(req, res, next) {
-    req.body.status = 'Draft';
-    next();
-}
-
-async function modifyRequestForPublished(req, res, next) {
-    req.body.status = 'Published';
-    next();
-}
-
-async function getUserCaseStudies(req, res) {
+async function getIndustries(req, res, next) {
     CaseStudy
-        .find({status: req.body.status, employee_id: req.body.params.username})
-        .select('project_name client_name')
+        .find()
+        .distinct('project_industry')
         .exec()
-        .then(docs => {
-            res.send(docs);
-        })
-}
-
-async function getPDF(req, res) {
-    res.sendFile(`${__dirname}/CaseStudy.pdf`);
-}
-
-async function createPDF(req, res) {
-    pdf
-        .create(pdfTemplate(req.body),{})
-        .toFile("routes/CaseStudy.pdf",(err)=> {
-            if(err){
-                res.send(Promise.reject());
-            } else {
-                res.send(Promise.resolve());
+        .then(industries => {
+            if(industries.length > 0) {
+                res.status(200).send(industries);
             }
-        });
+            else {
+                res.sendStatus(404);
+            }
+        })
+        .catch(next);
 }

@@ -1,0 +1,4 @@
+# Mocha configuration file
+
+require:
+  - 'tests/fixtures.js'
