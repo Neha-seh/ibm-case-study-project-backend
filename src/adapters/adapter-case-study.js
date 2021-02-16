@@ -61,16 +61,16 @@ async function getCaseStudy(req, res) {
         //.catch(next);
 }
 
-async function getManyCaseStudies(req, res) {
-    const search = `${req.body.project_industry} ${req.body.client_name} ${req.body['tag_data']}`
+async function getManyCaseStudies(req, res, next) {
+    //const search = `${req.body.project_industry} ${req.body.client_name} ${req.body['tag_data']}`
     CaseStudy
-        //.find({$text: {$search: req.query['q']}})
-        .find({$text: {$search: search}})
+        .find({$text: {$search: `${req.query['q']} ${req.query['industry']} ${req.query['company']}`}})
+        //.find({$text: {$search: search}})
         .exec()
         .then(docs => {
             res.status(200).send(docs);
         })
-    //.catch(next);
+        .catch(next);
 }
 
 async function getAllCaseStudies(req, res) {

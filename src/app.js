@@ -1,9 +1,9 @@
 const
     express = require('express'),
     cors = require('cors'),
-    UserAdapter = require('./models/user'),
-    ClientAdapter = require('./models/user'),
-    CaseStudyAdapter = require('./models/user');
+    UserAdapter = require('./adapters/adapter-user'),
+    ClientAdapter = require('./adapters/adapter-client'),
+    CaseStudyAdapter = require('./adapters/adapter-case-study');
 
 const app = express();
 
@@ -18,9 +18,9 @@ const router = express.Router();
 //router.post('/register', Adapter.UserAdapter.createUser);
 router.post('/login', UserAdapter.authenticateUser);
 //router.get('/view/:id', CaseStudyAdapter.getCaseStudy);
-//router.get('/search', CaseStudyAdapter.getManyCaseStudies);
+router.get('/search', CaseStudyAdapter.getManyCaseStudies);
 router.post('/view-by-id1', CaseStudyAdapter.getCaseStudy);
-router.post('/searchtags', CaseStudyAdapter.getManyCaseStudies);
+//router.post('/searchtags', CaseStudyAdapter.getManyCaseStudies);
 router.post('/create', CaseStudyAdapter.createCaseStudy);
 router.post('/update', CaseStudyAdapter.updateCaseStudy);
 router.get('/view-all', CaseStudyAdapter.getAllCaseStudies);
